@@ -1,3 +1,6 @@
+import useFormValidator from "../hooks/useFormValidator";
+import ErrorMessages from "./ErrorMessages";
+
 const SignUp = () => {
   const initialValues = {
     name: "",
@@ -34,7 +37,7 @@ const SignUp = () => {
       {
         validator: (value) => {
           if (value === "password") {
-            return Promise.reject("Please choose a more secure password."); 
+            return Promise.reject("Please choose a more secure password.");
           }
           return Promise.resolve();
         },
@@ -42,8 +45,18 @@ const SignUp = () => {
     ],
   };
 
+
+  const {values, errors, validateFields } = useFormValidator(initialValues, validationSchema);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    Reflect.set(values, name, value);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const errs = await validateFields();
+    if (Object.keys(errs).length > 0) return;
     alert("Form submitted!");
   };
 
@@ -65,8 +78,11 @@ const SignUp = () => {
             type="text"
             name="name"
             placeholder="John Doe"
+            value={values.name}
+            onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
+          <ErrorMessages errors={errors} name="name" />
         </div>
         <div className="mb-4">
           <label
@@ -80,8 +96,11 @@ const SignUp = () => {
             type="text"
             name="email"
             placeholder="john@example.com"
+            value={values.email}
+            onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
+          <ErrorMessages errors={errors} name="email" />
         </div>
         <div className="mb-6">
           <label
@@ -96,7 +115,10 @@ const SignUp = () => {
             type="password"
             placeholder="**********"
             name="password"
+            value={values.password}
+            onChange={handleChange}
           />
+          <ErrorMessages errors={errors} name="password" />
         </div>
         <button
           className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
